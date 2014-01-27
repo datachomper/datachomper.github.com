@@ -1,7 +1,28 @@
 <html>
-	<head></head>
+	<head>
+		<link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+		<style type="text/css">
+		#game {
+			float:left;
+		}
+		.scoreboard {
+			font-family: 'Press Start 2P', cursive;
+		}
+		#title { color: #0E478A; }
+		#score { color: #2089A4; }
+		#escaped { color: #81AA52; }
+		#speed { color: #D52D26; }
+		#gameover { color: #D52D26; }
+
+		</style>
+	</head>
 	<body>
 		<div id="game"></div>
+		<div class="scoreboard" id="title">SPACE ENFOS</div>
+		<div class="scoreboard" id="speed">SPEED 0</div>
+		<div class="scoreboard" id="escaped">ESCAPED 0</div>
+		<div class="scoreboard" id="score">SCORE 0</div>
+		<div class="scoreboard" id="gameover"></div>
 		<script src="crafty.js"></script>
 		<script>
 
@@ -14,6 +35,8 @@
 					height: 20
 				}
 			},
+			
+			speed: 1, // Movement rate in px/frame
 
 			width: function() {
 				return this.grid.width * this.grid.tile.width;
@@ -43,29 +66,55 @@
 				this.requires('2D, Canvas, Grid, Color, Mouse');
 				this.color('white');
 				this.bind('MouseOver', function() {
-					scoreasdf.text("Score: "+score+100);
 					//this.unbind("Click");
 					this.destroy();
+					score++;
+					document.getElementById("score").innerHTML = "SCORE "+score;
 				});
 
 				this.bind('EnterFrame', function(data) {
-					seconds = data.frame/Crafty.timer.FPS();
-					this.y += 1+Math.floor(seconds/10);
+					if (this.y > Game.grid.tile.height*Game.grid.height) {
+						escaped_blocks++;
+						document.getElementById("escaped").innerHTML = "ESCAPED "+escaped_blocks;
+						this.destroy();
+					}
+					this.y += Game.speed;
 				});
 			}
 		});
 
 		var myobj = Crafty.init(Game.width(), Game.height(), document.getElementById('game'));
-
-		var scoreasdf = Crafty.e("2D, DOM, Text").attr({x: 0, y:0, w:200, h:200}).textColor("#ff0000").text("Score: 0"), score = 0;
+		var timer = 0;
+		var escaped_blocks = 0;
+		var score = 0;
 
 		/* Spawn random creatures around the top edge */
 		Crafty.e().bind("EnterFrame", function(data) {
-			if (!(data.frame % Crafty.timer.FPS())) {
+			/* Stop the game if 10 blocks escape */
+			if (escaped_blocks > 9) {
+				document.getElementById("gameover").innerHTML = "GAME OVER";
+				Crafty.stop();
+			}
+
+
+			/* Calculate game elapsed seconds for rate calculations */
+			seconds = data.frame/Crafty.timer.FPS();
+
+			/* Double drop rate every few seconds */
+			Game.speed = 1+(seconds/40);
+			var speed_percent = Math.floor(Game.speed*100);
+			document.getElementById("speed").innerHTML = "SPEED "+speed_percent;
+
+			/* Calculate if we can spawn blocks based on clearing previously
+			   spawned blocks */
+			if (!timer) {
 				for (var x=0; x<Game.grid.width; x++) {
 					if (Math.random() < 0.10)
 						Crafty.e('Creature').at(x,0);
 				}
+				timer = Math.floor(Game.grid.tile.height/Game.speed);
+			} else {
+				timer--;
 			}
 		});
 
