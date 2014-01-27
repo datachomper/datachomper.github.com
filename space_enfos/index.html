@@ -114,33 +114,36 @@
 				Crafty.stop();
 
 				/* Calculate if you made the high score list */
-				for (var row = 0; row < 10; row++) {
-					if ((gscores[row] == undefined) || (gscores[row].score < score)) {
-						if (initials == null)
-							initials = prompt("Enter initials for high score");
+				window.remoteStorage.getItem('location1234', function(v,k) {
+					gscores = JSON.parse(v);
+					for (var row = 0; row < 10; row++) {
+						if ((gscores[row] == undefined) || (gscores[row].score < score)) {
+							if (initials == null)
+								initials = prompt("Enter initials for high score");
 
-						if (initials != null) {
-							/* fixup high scores */
-							for (var x = 9; x > row; x--) {
-								if (gscores[x-1] == undefined) continue;
-								gscores[x] = gscores[x-1];
+							if (initials != null) {
+								/* fixup high scores */
+								for (var x = 9; x > row; x--) {
+									if (gscores[x-1] == undefined) continue;
+									gscores[x] = gscores[x-1];
+								}
+								var new_score = new Object();
+								new_score.initials = initials.slice(0,3).toUpperCase();
+								new_score.score = score;
+								gscores[row] = new_score;
+								window.remoteStorage.setItem('location1234', JSON.stringify(gscores));
+
+								/* Update score board */
+								table = "";
+								for (var row = 0; row < gscores.length; row++)
+									table += "<div>"+gscores[row].initials+" "+gscores[row].score+"</div>";
+					
+								document.getElementById("high_scores").innerHTML = table;
 							}
-							var new_score = new Object();
-							new_score.initials = initials.slice(0,3).toUpperCase();
-							new_score.score = score;
-							gscores[row] = new_score;
-							window.remoteStorage.setItem('location1234', JSON.stringify(gscores));
-
-							/* Update score board */
-							table = "";
-							for (var row = 0; row < gscores.length; row++)
-								table += "<div>"+gscores[row].initials+" "+gscores[row].score+"</div>";
-				
-							document.getElementById("high_scores").innerHTML = table;
-						}
-						return;
-					}	
-				}
+							return;
+						}	
+					}
+				});
 			}
 
 
