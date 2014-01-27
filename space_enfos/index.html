@@ -1,0 +1,78 @@
+<html>
+	<head></head>
+	<body>
+		<div id="game"></div>
+		<script src="crafty.js"></script>
+		<script>
+
+		Game = {
+			grid: {
+				width: 10,
+				height: 40,
+				tile: {
+					width: 20,
+					height: 20
+				}
+			},
+
+			width: function() {
+				return this.grid.width * this.grid.tile.width;
+			},
+
+			height: function() {
+				return this.grid.height * this.grid.tile.height;
+			}
+		}
+
+		Crafty.c('Grid', {
+			init: function() {
+				this.attr({
+					w: Game.grid.tile.width,
+					h: Game.grid.tile.height
+				})
+			},
+
+			at: function(x,y) {
+				this.attr({ x: x*Game.grid.tile.width, y: y*Game.grid.tile.height});
+				return this;
+			}
+		});
+
+		Crafty.c('Creature', {
+			init: function() {
+				this.requires('2D, Canvas, Grid, Color, Mouse');
+				this.color('white');
+				this.bind('MouseDown', function() {
+					scoreasdf.text("Score: "+score+100);
+					//this.unbind("Click");
+					this.destroy();
+				});
+
+				this.bind('EnterFrame', function(data) {
+					seconds = data.frame/Crafty.timer.FPS();
+					if (!(data.frame % Crafty.timer.FPS())) {
+						this.y += Game.grid.tile.height * (1 + Math.floor(seconds/10));
+					}
+				});
+			}
+		});
+
+		var myobj = Crafty.init(Game.width(), Game.height(), document.getElementById('game'));
+
+		var scoreasdf = Crafty.e("2D, DOM, Text").attr({x: 0, y:0, w:200, h:200}).textColor("#ff0000").text("Score: 0"), score = 0;
+
+		/* Spawn random creatures around the top edge */
+		Crafty.e().bind("EnterFrame", function(data) {
+			if (!(data.frame % Crafty.timer.FPS())) {
+				for (var x=0; x<Game.grid.width; x++) {
+					if (Math.random() < 0.10)
+						Crafty.e('Creature').at(x,0);
+				}
+			}
+		});
+
+		/* Move creatures downwards */
+		Crafty.background('black');
+		</script>
+	</body>
+</html>
