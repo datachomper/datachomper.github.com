@@ -68,7 +68,7 @@
 				this.bind('MouseOver', function() {
 					//this.unbind("Click");
 					this.destroy();
-					score++;
+					score += Math.floor(this.y);
 					document.getElementById("score").innerHTML = "SCORE "+score;
 				});
 
