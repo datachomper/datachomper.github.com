@@ -42,7 +42,7 @@
 			init: function() {
 				this.requires('2D, Canvas, Grid, Color, Mouse');
 				this.color('white');
-				this.bind('MouseDown', function() {
+				this.bind('MouseOver', function() {
 					scoreasdf.text("Score: "+score+100);
 					//this.unbind("Click");
 					this.destroy();
@@ -50,9 +50,7 @@
 
 				this.bind('EnterFrame', function(data) {
 					seconds = data.frame/Crafty.timer.FPS();
-					if (!(data.frame % Crafty.timer.FPS())) {
-						this.y += Game.grid.tile.height * (1 + Math.floor(seconds/10));
-					}
+					this.y += 1+Math.floor(seconds/10);
 				});
 			}
 		});
